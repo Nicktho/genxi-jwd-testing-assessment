@@ -100,7 +100,7 @@ That's because the `headsOrTails` function returns `'heads'` or `'tails'` _depen
 
 We call this an **external dependency**, something our function _depends_ on, but can't control.
 
-This is known as a (flaky test)[https://hackernoon.com/flaky-tests-a-war-that-never-ends-9aa32fdef359], because without changing the condition of the test, the test sometimes passes and sometimes fails.
+This is known as a [flaky test](https://hackernoon.com/flaky-tests-a-war-that-never-ends-9aa32fdef359), because without changing the condition of the test, the test sometimes passes and sometimes fails.
 
 We can handle this flaky test by modifying the behaviour of `coin.flip()` so that it always does we want it to do. We can do this using a [Spy](https://jasmine.github.io/api/3.6/Spy.html).
 
