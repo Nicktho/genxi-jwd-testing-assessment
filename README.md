@@ -1,4 +1,4 @@
-# Testing Excercises 
+# Testing Exercises 
 
 ## Description
 
@@ -94,7 +94,7 @@ Add [spec/chanceSpec.js](spec/chanceSpec.js) to `SpecRunner.html` with a `<scrip
 
 See if the test passes. Refresh the page a few more times.
 
-Notice how somethings the test passes, and sometimes it doesn't?
+Notice how sometimes the test passes, and sometimes it doesn't?
 
 That's because the `headsOrTails` function returns `'heads'` or `'tails'` _depending on the result of `coin.flip()`_, which has a 50% chance to be `true` or `false`! 
 
@@ -104,7 +104,7 @@ This is known as a [flaky test](https://hackernoon.com/flaky-tests-a-war-that-ne
 
 We can handle this flaky test by modifying the behaviour of `coin.flip()` so that it always does we want it to do. We can do this using a [Spy](https://jasmine.github.io/api/3.6/Spy.html).
 
-Let's use the [spyOn](https://jasmine.github.io/api/3.6/global.html#spyOn) function to create a `spy` that spy's on the `code.flip()` method and modifies it to behaive in a predictable manor.
+Let's use the [spyOn](https://jasmine.github.io/api/3.6/global.html#spyOn) function to create a `spy` that spy's on the `code.flip()` method and modifies it to behave in a predictable manner.
 
 Replace the test case with the following:
 
