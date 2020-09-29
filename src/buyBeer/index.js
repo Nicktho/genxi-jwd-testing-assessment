@@ -1,5 +1,5 @@
 const canBuyBeer = (age) => {
-  if (age >= 17) {
+  if (age > 17) {
     return true;
   } else {
     return false;
