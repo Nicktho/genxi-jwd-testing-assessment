@@ -489,5 +489,5 @@ Start by testing the functionality of the function that creates the HTML for the
 
 Then, test the functionality of the function that gets the weather for a city.
 
-Finally, for that extra challenge, try testing this click handler for your button. Note, **this is extremely difficult** so don't be discouraged if you don't get there!
+Finally, for that extra challenge, try testing the click handler for your button. Note, **this is extremely difficult** so don't be discouraged if you don't get there!
 
