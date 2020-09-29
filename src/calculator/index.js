@@ -28,7 +28,7 @@ class Calculator {
 
   divide(x, y) {
     checkIfNumber(x);
-    checkIfNumvber(y);
+    checkIfNumber(y);
 
     if (y === 0) {
       throw new Error('Can not divide by zero.');
