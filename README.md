@@ -169,3 +169,325 @@ Because we've set `greg`'s `age` to explicitly be `18`, we know that `canGrebBuy
 It's important to set `greg.age` back to its original value as not to break any further tests.
 
 Now that we've implemented a test for when greg is over 18, can you add a test case for when greg is under 18?
+
+### 4. Weather
+
+Before starting this exercise, refresh your self on [Promises](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise).
+
+For this exercise, we'll be testing [src/weather/index.js](src/weather/index.js).
+
+Create a spec for it, and link it to the `SpecRunner.html`.
+
+We're going to write some unit tests for the function `getWeatherFor`.
+
+We want to write the following tests to cover all our code paths in the function:
+  - When we pass `'Sydney'` we get back the right temp.
+  - When we pass `'Melbourne'` we get back the right temp.
+  - When we pass any other city we get an error.
+
+Because `getWeatherFor` returns a promise, we'll have to handle the fact that it is an [Asynchronous](https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Asynchronous/Concepts) function.
+
+First, let's use what we know to try and get a test to pass. Let's start with the first case: 
+
+> When we pass `'Sydney'` we get back the right temp.
+
+Because `getWeatherFor` returns a promise, we'll need to use `.then` to get the value, that's start with that.
+
+```js
+describe('getWeatherFor', () => {
+  describe('when passed "Sydney"', () => {
+    it('should return 25', () => {
+      getWeatherFor('Sydney')
+        .then((temp) => {
+          expect(temp).toBe(25);
+        });
+    });
+  });
+});
+```
+
+Refreshing `SpecRunner.html` shows us the following:
+
+![Pic of SpecRunner.html](images/3.png)
+
+Jasmine is telling us "SPEC HAS NO EXPECTATIONS". Even though we added an `expect`, expecting the `temp` to be `25`.
+
+What's going on?
+
+Well, Jasmine doesn't know it needs to _wait_ for the promise to `resolve` before it moves on. This is because `getWeatherFor` is an [Asynchronous](https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Asynchronous/Concepts) function. 
+
+There's two ways to do this with Jasmine, the first is to `return` the function `getWeatherFor`, like so: 
+
+```js
+describe('getWeatherFor', () => {
+  describe('when passed "Sydney"', () => {
+    it('should return 25', () => {
+      return getWeatherFor('Sydney')
+        .then((temp) => {
+          expect(temp).toBe(25);
+        });
+    });
+  });
+});
+```
+
+The second is to use and `return` the [expectAsync](https://jasmine.github.io/api/3.6/global.html#expectAsync) function, and the [async-matcher](https://jasmine.github.io/api/3.6/async-matchers.html) `.toBeResolvedTo()`, like so.
+
+(Notice I've changed the wording in the `it` to reflect the language used in the matcher).
+
+```js
+describe('getWeatherFor', () => {
+  describe('when passed "Sydney"', () => {
+    it('should resolve 25', () => {
+      return expectAsync(getWeatherFor('Sydney')).toBeResolvedTo(25);
+    });
+  });
+});
+```
+
+I prefer the second way, since it's cleaner and will help when testing when `getWeatherFor` _rejects_ (causes an error to be thrown in `.catch()`), so let's go with that for our code.
+
+Which, by the way, is the thing we need to do for our next test case!
+
+```js
+describe('when passed a city other than "Sydney" or "Melbourne"', () => {
+  it('should reject with an error', () => {
+    return expectAsync(getWeatherFor('London'))
+      .toBeRejectedWith('City London does not exist in our database');
+  });
+});
+```
+
+Here, we've used the `.toBeRejectedWith()` matcher to test that the promise _rejects_ with a value. I've also brought the matcher down a line to make it easier to read, but I could of kept it on the same line, just like
+
+```js
+return expectAsync(getWeatherFor('London')).toBeRejectedWith('City London does not exist in our database');
+```
+
+Now that we've added cases for `'Sydney'` and `'London'`, try adding a test case for `'Melbourne'`, using `expectAsync()`.
+
+### 5. Login
+
+For this exercise, we're going to be combining everything we've learnt so far:
+  - Spies
+  - Mocks
+  - expectAsync and Promises
+
+to test a "real world" example in [src/login/index.js](src/login/index.js).
+
+First, let's go through each file:
+  - [src/login/index.js](src/login/index.js): The code we're going to test
+  - [src/login/api.js](src/login/api.js): An `Api` class that calls a real api to get data
+  - [src/login/domElement.js](src/login/domElement.js): A `DomElement` class that mimics what we would get back from `document.querySelector()`.
+
+We're going to test `login` together, and then we'll start testing the `clickButton` event, with the challenge to finish it off on your own!
+
+Before you continue, create a `Spec` file for `login` and link it to `SpecRunner.html`.
+
+Looking at the code for the `login` function:
+
+```js
+const login = (email, password) => Api.login(email, password)
+  .then(response => {
+    if (response.error) {
+      if (response.error === 'user not found') {
+        throw new Error('Oops! Incorrect username or password. Check your details and try again.');
+      } else if (response.error === 'Missing password') {
+        throw new Error('Oops! Missing password, make sure to fill in your password and try again.');
+      }
+    }
+
+    return response.token;
+  });
+```
+We can see it calls a function `Api.login()`, which `return`s a `promise`, giving us a `response`, which we check to see if it includes an `error`, if it does, we `throw` errors, otherwise finally `return` the `response.token`.
+
+Phew! Let's play around with this function first to get a feel for how it works, note, `Api.login()` is requesting a _real_ api here. 
+
+In `SpecRunner.html` in the browser, open up the console and run:
+
+```js
+login('eve.holt@reqres.in', 'greg').then(response => console.log(response)).catch(err => console.log(err))
+```
+
+Here, we're calling `login` with the `email` of `'eve.holt@reqres.in'` and the `password` `'greg'`, we should see:
+
+![Image of SpecRunner.html](images/4.png)
+
+Here, the login has been sucessful and returned a `token` which we logged out.
+
+Next, let's modify our username and password a bit:
+
+```js
+login('nick', 'greg').then(response => console.log(response)).catch(err => console.log(err))
+```
+
+This should cause the API to give us back an error, looking something like:
+
+![Image of SpecRunner.html](images/5.png)
+
+Finally, lets take out the password completly:
+
+```js
+login('nick').then(response => console.log(response)).catch(err => console.log(err))
+```
+
+Which should give us our final error, looking something like:
+
+![Image of SpecRunner.html](images/6.png)
+
+Now we've gone through all the possible results from calling `login` using the _real_ API, let's go ahead and test these.
+
+When we're testing against real APIs, to stop our code from being "flaky", its best to replace the API (which is an **external dependency**) with a [Spy](https://jasmine.github.io/api/3.6/Spy.html).
+
+We need to make sure our `Spy` returns the same type of value that the original function returns, in this case its a promise.
+
+With this in mind, let's implement a test to test the _happy path_ of our function, when the API returns back a `token` and no `error`.
+
+```js
+describe('login', () => {
+  describe('when the user logs in successfully', () => {
+    it('should resolve a token', () => {
+      const response = { token: '123' };
+      const loginValue = new Promise((resolve, reject) => {
+        resolve(response);
+      });
+
+      spyOn(Api, 'login').and.returnValue(loginValue);
+
+      return expectAsync(login('test', 'test')).toBeResolvedTo(response.token);
+    });
+  });
+});
+```
+
+There's a lot going on here, but lets break it down.
+
+First,
+
+```js
+  const response = { token: '123' };
+```
+
+We're creating a `response` object with the `response` we want the promise that `Api.login()` returns to give us.
+
+Next,
+
+```js
+const loginValue = new Promise((resolve, reject) => {
+  resolve(response);
+});
+```
+
+Here we're creating the `Promise` that `Api.login()` is going to `return`. You can read up on the syntax over on the [Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise) MDN article.
+
+In short, a `new Promise()` takes a `callback`, which we can then use to `resolve` a value (that will get passed to `.then()`) or `reject` a value (that will get passed to `.catch()`).
+
+After that,
+
+```js
+spyOn(Api, 'login').and.returnValue(loginValue);
+```
+
+We're using a spy to modify `Api.login()` to instead return our `Promise` we created (`loginValue`), instead of calling the _real_ API.
+
+Finally,
+
+```js
+return expectAsync(login('test', 'test')).toBeResolvedTo(response.token);
+```
+
+We use `return expectAsync()` because we need to tell Jasmine to wait for our `Promise` to resolve, and we're checking it resolves to our `response.token`!
+
+Note that, it doesn't matter what `email` or `password` we pass to `login()`, since we've used a `Spy` to _always_ resolve with our `token`.
+
+Phew, that was a big one. Go through it a few more times if you need to, before moving on to the next case.
+
+Now that we have tested the _happy path_ of our `login` function, let's add a test case for when the `Api.login()` function resolves with an `error`.
+
+```js
+describe('when the user uses an incorrect email', () => {
+  it('should reject with an error message', () => {
+    const response = { error: 'user not found' };
+    const loginValue = new Promise((resolve, reject) => {
+      resolve(response);
+    });
+
+    spyOn(Api, 'login').and.returnValue(loginValue);
+
+    return expectAsync(login('test', 'test'))
+      .toBeRejectedWithError('Oops! Incorrect username or password. Check your details and try again.');
+  });
+});
+```
+
+We'll break this one down too.
+
+First,
+
+```js
+const response = { error: 'user not found' };
+```
+
+Similar to the previous test, but here we're setting the response to be an object with the `error` property set to `'user not found'`. This will trigger the right part of the `login` function we want to test.
+
+Next,
+
+```js
+const loginValue = new Promise((resolve, reject) => {
+  resolve(response);
+});
+```
+
+Exactly the same as the previous test, we're creating a promise that we will give `Api.login()` to return using our spy. We're resolving the `response` we just created.
+
+Then,
+```js
+spyOn(Api, 'login').and.returnValue(loginValue);
+```
+
+Again, same as the previous test. We're spying on `Api.login()` and setting it's `returnValue` to the `loginValue` we just created.
+
+Finally,
+```js
+return expectAsync(login('test', 'test'))
+  .toBeRejectedWithError('Oops! Incorrect username or password. Check your details and try again.');
+```
+
+Here we're using `return expectAsync()` like in the previous test to tell Jasmine to wait for our promise to resolve before continuing on.
+
+The difference here is the [async-matcher](https://jasmine.github.io/api/3.6/async-matchers.html) we used. We're using `.toBeRejectedWithError()` to check that `login` _rejects_ with the correct error.
+
+Using what you have learnt so far, write a test that tests when a `password` is not passed to `login`. It should be very similar to the previous test case!
+
+### 6. Login: CHALLENGE - clickButton (OPTIONAL)
+
+This exercise is a challenging one! Use all you've learnt to write tests for `clickButton` in [src/login/index.js](src/login/index.js).
+
+Some tips:
+
+- Use mocks for the values of the fields
+- Test both the happy path and when theres an error. There's two errors here! Both from `login`
+- Because the function in `.then()` on line 24 does _not_ `return` anything, we'll need to use the first stratergy we discussed when dealing with Asynchronous code.
+  - Try `return`ing the function `clickButton` in your test.
+  - Call `.then()` on the result of `clickButton` and use the callback provided to `.then()` to check things!, for example:
+    ```js
+    return clickButton.then(() => {
+      expect(loginMessage.innerText).toBe('FILL THIS IN!')
+    })
+    ```
+- Use spies to spy on `Api.login` so that the code doesn't call the API!
+- Make sure you test the fields are reset!
+
+Good luck! This is a tricky one! A completed example will be provided towards the end of the day.
+
+### 7. Weather app: CHALLENGE (OPTIONAL)
+
+For the final challenge, can you write tests for your weather app created last week?
+
+Start by testing the functionality of the function that creates the HTML for the weather app.
+
+Then, test the functionality of the function that gets the weather for a city.
+
+Finally, for that extra challenge, try testing this click handler for your button. Note, **this is extremely difficult** so don't be discouraged if you don't get there!
+

@@ -16,10 +16,9 @@ const login = (email, password) => Api.login(email, password)
     return response.token;
   });
 
-
-loginButton.addEventListener('click', () => {
+const clickButton = () => {
   const email = loginEmail.value;
-  const password = loginEmail.password;
+  const password = loginPassword.value;
 
   return login(email, password)
     .then(token => {
@@ -31,4 +30,4 @@ loginButton.addEventListener('click', () => {
     .catch(err => {
       loginMessage.innerText = err.message;
     });
-});
+}
