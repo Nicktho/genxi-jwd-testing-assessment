@@ -127,7 +127,7 @@ Save the spec and refresh `SpecRunner.html` a few times, you should notice the t
 
 Go ahead and create a test for `when the coin flip is false`, expecting the `result` to be `'tails'`.
 
-### 3. buyBeer
+### 3. BuyBeer
 
 In this challenge, we'll be testing [src/buyBeer/index.js](src/buyBeer/index.js).
 
@@ -150,14 +150,16 @@ Check out the following test case that saves a reference to `greg`'s `age`, modi
 
 ```js
 describe('canGregBuyBeer', () => {
-  describe('when greg is over 17', () => {
-    const originalAge = greg.age;
-    greg.age = 18
-    
-    const result = canGregBuyBeer();
+  describe('when greg is 18', () => {
+    it('should return "Greg is 18, he can buy beer!"', () => {
+      const originalAge = greg.age;
+      greg.age = 18
+      
+      const result = canGregBuyBeer();
 
-    expect(result).toBe('Greg is 18, he can buy beer!');
-    greg.age = originalAge;
+      expect(result).toBe('Greg is 18, he can buy beer!');
+      greg.age = originalAge;
+    })
   });
 });
 ```
